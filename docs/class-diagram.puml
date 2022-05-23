@@ -1,0 +1,90 @@
+@startuml
+
+class Strategy {
+    id: UUID
+    createdAt: Instant
+    updatedAt: Instant
+    status: StrategyStatus
+    tinkoffAccountId: String
+    sandbox: boolean
+    type: StrategyType
+    executionPeriod: String
+    instruments: String[]
+}
+
+enum StrategyStatus {
+    ACTIVE
+    ARCHIVED
+}
+
+enum StrategyType {
+    INVEST_FREE_CASH_EQUAL_WEIGHTED
+    REBALANCE_EQUAL_WEIGHTED
+}
+
+Strategy ..> StrategyStatus
+Strategy ..> StrategyType
+
+class StrategyExecution {
+    id: UUID
+    createdAt: Instant
+    updatedAt: Instant
+    strategyId: UUID
+    tinkoffAccountId: String
+    sandbox: boolean
+    startedAt: Instant
+    endedAt: Instant
+}
+
+Strategy "1" -- "*" StrategyExecution
+
+class Order {
+    id: UUID
+    createdAt: Instant
+    updatedAt: Instant
+    strategyExecutionId: UUID
+    tinkoffAccountId: String
+    sandbox: boolean
+    figi: String
+    lots: long
+    direction: OrderDirection
+    status: OrderStatus
+    placeAt: Instant
+    tinkoffOrderId: String
+}
+
+enum OrderStatus {
+    NEW
+    PLACED
+    FILLED
+    REJECTED
+    UNKNOWN
+}
+
+Order ..> OrderStatus
+StrategyExecution "1" -- "*" Order
+
+interface StrategyExecutionProcessor {
+    getStrategyType(): StrategyType
+    process(Strategy strategy, StrategyExecution strategyExecution): StrategyExecutionProcessingResult
+}
+
+class InvestFreeCashEqualWeightedStrategyExecutionProcessor {
+}
+
+class RebalanceEqualWeightedStrategyExecutionProcessor {
+}
+
+class EqualWeightedAlgorithmOrderCreator {
+    createBuyOptimizationOrders: List<Order>
+    createSellOptimizationOrders: List<Order>
+}
+
+InvestFreeCashEqualWeightedStrategyExecutionProcessor .u.|> StrategyExecutionProcessor
+RebalanceEqualWeightedStrategyExecutionProcessor .u.|> StrategyExecutionProcessor
+InvestFreeCashEqualWeightedStrategyExecutionProcessor ..> EqualWeightedAlgorithmOrderCreator
+RebalanceEqualWeightedStrategyExecutionProcessor ..> EqualWeightedAlgorithmOrderCreator
+InvestFreeCashEqualWeightedStrategyExecutionProcessor ..> StrategyExecution
+RebalanceEqualWeightedStrategyExecutionProcessor ..> StrategyExecution
+
+@enduml

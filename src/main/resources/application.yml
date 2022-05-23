@@ -1,0 +1,23 @@
+spring:
+  main:
+    banner-mode: "OFF"
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST:}:${POSTGRES_PORT:}/${POSTGRES_DBNAME:}
+    username: ${POSTGRES_USERNAME:}
+    password: ${POSTGRES_PASSWORD:}
+    hikari:
+      maximum-pool-size: 2
+  jpa:
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+tinkoff-client:
+  app-name: ${TINKOFF_CLIENT_APP_NAME:}
+  token: ${TINKOFF_CLIENT_TOKEN:}
+  sandbox-token: ${TINKOFF_CLIENT_SANDBOX_TOKEN}
+
+application:
+  scheduling:
+    strategy-runner-task:
+      fixed-delay: "PT1M"
