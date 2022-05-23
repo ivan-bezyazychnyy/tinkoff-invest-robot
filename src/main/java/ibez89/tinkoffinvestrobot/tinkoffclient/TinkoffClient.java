@@ -1,8 +1,5 @@
 package ibez89.tinkoffinvestrobot.tinkoffclient;
 
-import com.google.protobuf.Timestamp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.tinkoff.piapi.contract.v1.*;
@@ -10,17 +7,13 @@ import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.models.Positions;
 import ru.tinkoff.piapi.core.utils.MapperUtils;
 
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class TinkoffClient {
-
-    private final static Logger logger = LoggerFactory.getLogger(TinkoffClient.class);
 
     private final InvestApi api;
 
@@ -32,37 +25,6 @@ public class TinkoffClient {
             @Value("${tinkoff-client.sandbox-token") String sandboxToken) {
         this.api = InvestApi.create(token, appName);
         this.sandboxApi = InvestApi.createSandbox(sandboxToken, appName);
-    }
-
-    @PostConstruct
-    public void init() {
-        var instruments = Set.of("GAZP", "SBERP", "MTSS", "ROSN", "RTKM", "DSKY", "MOEX");
-        api.getInstrumentsService().getAllSharesSync()
-                .stream()
-                .filter(share -> instruments.contains(share.getTicker()))
-                .limit(10)
-                .forEach(share -> {
-                    System.out.printf("Share: ticker=%s, classCode=%s, figi=%s, exchange=%s, lotSize=%s%n",
-                            share.getTicker(), share.getClassCode(), share.getFigi(), share.getExchange(),
-                            share.getLot());
-                    api.getInstrumentsService().getTradingScheduleSync(share.getExchange(), Instant.now(),
-                                    Instant.now().plus(6, ChronoUnit.DAYS))
-                            .getDaysList()
-                            .forEach(tradingDay ->
-                                    System.out.printf("Trading day: %s, %s, %s, %s, %s, %s, %s%n",
-                                            toInstant(tradingDay.getDate()),
-                                            tradingDay.getIsTradingDay(),
-                                            toInstant(tradingDay.getStartTime()),
-                                            toInstant(tradingDay.getEndTime()),
-                                            toInstant(tradingDay.getOpeningAuctionStartTime()),
-                                            toInstant(tradingDay.getPremarketStartTime()),
-                                            toInstant(tradingDay.getPremarketEndTime())));
-                });
-        System.out.println();
-    }
-
-    private static Instant toInstant(Timestamp timestamp) {
-        return Instant.ofEpochSecond(timestamp.getSeconds());
     }
 
     public PriceProvider createCachingPriceProvider() {
