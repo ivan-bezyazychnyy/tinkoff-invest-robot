@@ -28,14 +28,14 @@ public class OrderQueueConfiguration {
                                 .build())
                 .withPollSettings(
                         PollSettings.builder()
-                                .withBetweenTaskTimeout(Duration.ofSeconds(1))
-                                .withNoTaskTimeout(Duration.ofSeconds(10))
-                                .withFatalCrashTimeout(Duration.ofMinutes(1))
+                                .withBetweenTaskTimeout(Duration.ofMillis(500))
+                                .withNoTaskTimeout(Duration.ofSeconds(1))
+                                .withFatalCrashTimeout(Duration.ofSeconds(30))
                                 .build())
                 .withFailureSettings(
                         FailureSettings.builder()
                                 .withRetryType(FailRetryType.GEOMETRIC_BACKOFF)
-                                .withRetryInterval(Duration.ofMinutes(1))
+                                .withRetryInterval(Duration.ofSeconds(30))
                                 .build())
                 .withReenqueueSettings(
                         ReenqueueSettings.builder()
