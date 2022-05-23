@@ -1,0 +1,69 @@
+@startuml
+
+group Create Strategy Execution
+    StrategyRunnerTask -> StrategyService : executePendingStrategies()
+    StrategyService -> StrategyRepository : findPendingActiveStrategiesWithoutAccountExecutions()
+    StrategyRepository --> StrategyService : strategies to execute
+    StrategyService -> StrategyExecutionService : createExecution(execution)
+    create StrategyExecution
+    StrategyExecutionService -> StrategyExecution : new
+    StrategyExecutionService -> DbQueue : createTask(strategyExecution.getId)
+    DbQueue --> StrategyExecutionService
+    StrategyExecutionService --> StrategyService
+    StrategyService --> StrategyRunnerTask
+end
+
+... asynchronously ...
+
+group Process strategy execution: create orders
+    DbQueue -> StrategyExecutionConsumer : execute(strategyExecution)
+    StrategyExecutionConsumer -> StrategyExecutionManager : getProcessor(strategy.getType())
+    StrategyExecutionConsumer -> StrategyExecutionProcessor  : process(strategy, strategyExecution)
+    create Order
+    StrategyExecutionProcessor -> Order : new
+    StrategyExecutionProcessor -> DbQueue : createTask(Order.getId)
+    DbQueue --> StrategyExecutionProcessor
+    StrategyExecutionProcessor --> StrategyExecutionConsumer
+    StrategyExecutionConsumer --> DbQueue : TaskExecutionResult.reenqueue()
+end
+
+... asynchronously ...
+
+group Process order: post order and get network error
+    DbQueue -> OrderConsumer : execute(order)
+    OrderConsumer -> "Tinkoff API" !! : postOrder(order.getId())
+    OrderConsumer --> DbQueue : TaskExecutionResult.reenqueue()
+end
+
+... asynchronously ...
+
+group Process order: post order successfully
+    DbQueue -> OrderConsumer : execute(order)
+    OrderConsumer -> "Tinkoff API" : postOrder(order.getId())
+    "Tinkoff API" --> OrderConsumer : success
+    OrderConsumer --> Order : setStatus(PLACED)
+    OrderConsumer --> DbQueue : TaskExecutionResult.reenqueue()
+end
+
+... asynchronously ...
+
+group Process order: check order status and mark filled
+    DbQueue -> OrderConsumer : execute(order)
+    OrderConsumer -> "Tinkoff API" : getOrder()
+    "Tinkoff API" --> OrderConsumer : filled order
+    OrderConsumer --> Order : setStatus(FILLED)
+    OrderConsumer --> DbQueue : TaskExecutionResult.finish()
+end
+
+... asynchronously ...
+
+group Process strategy execution: check orders filled and end execution
+    DbQueue -> StrategyExecutionConsumer : execute(strategyExecution)
+    StrategyExecutionConsumer -> Order : getStatus()
+    Order --> StrategyExecutionConsumer : FILLED
+    StrategyExecutionConsumer -> StrategyExecution : setEndedAt(now())
+    StrategyExecution --> StrategyExecutionConsumer
+    StrategyExecutionConsumer --> DbQueue : TaskExecutionResult.finish()
+end
+
+@enduml
