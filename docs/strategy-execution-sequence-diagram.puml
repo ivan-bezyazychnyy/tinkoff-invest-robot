@@ -17,7 +17,8 @@ end
 
 group Process strategy execution: create orders
     DbQueue -> StrategyExecutionConsumer : execute(strategyExecution)
-    StrategyExecutionConsumer -> StrategyExecutionManager : getProcessor(strategy.getType())
+    StrategyExecutionConsumer -> StrategyExecutionProcessorManager : getProcessor(strategy.getType())
+    StrategyExecutionProcessorManager --> StrategyExecutionConsumer : processor
     StrategyExecutionConsumer -> StrategyExecutionProcessor  : process(strategy, strategyExecution)
     create Order
     StrategyExecutionProcessor -> Order : new
