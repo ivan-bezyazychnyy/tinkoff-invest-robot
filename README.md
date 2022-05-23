@@ -59,7 +59,7 @@ are required for the application:
 
 The command to run the application:
 ```
-.mvnw spring-boot:run
+mvnw spring-boot:run
 ```
 
 ### [Tinkoff Contest Case] Start with inmemory database using testcontainers
@@ -76,7 +76,7 @@ the next environment variables must be set:
 
 The command to run the application:
 ```
-.mvnw spring-boot:run -D"spring-boot.run.profiles"=inmemory
+mvnw spring-boot:run -D"spring-boot.run.profiles"=inmemory
 ```
 
 Pay attention that no data is saved between restarts of the application in this mode.
