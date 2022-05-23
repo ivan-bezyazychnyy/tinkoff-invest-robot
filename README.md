@@ -96,7 +96,7 @@ Swagger UI is available at the path `/swagger-ui.html` (http://localhost:8080/sw
 This section presents the usage of the robot with a real account. For testing purposes the `executionPeriod`
 is set to 10 minutes. Let's create the first strategy of `INVEST_FREE_CASH_EQUAL_WEIGHTED` type:
 <details>
-<summary>`curl -X POST 'localhost:8080/api/v1/strategies'`</summary>
+<summary>curl -X POST 'localhost:8080/api/v1/strategies'</summary>
 
 ```
 curl -X POST 'localhost:8080/api/v1/strategies' \
@@ -132,7 +132,7 @@ curl -X POST 'localhost:8080/api/v1/strategies' \
 
 Its executions:
 <details>
-<summary>`curl -X GET 'localhost:8080/api/v1/strategies/fe003d61-d044-42e1-8e89-d2785b690ea2/executions?sort=startedAt,desc'`</summary>
+<summary>curl -X GET 'localhost:8080/api/v1/strategies/fe003d61-d044-42e1-8e89-d2785b690ea2/executions?sort=startedAt,desc'</summary>
 
 ```
 curl -X GET 'localhost:8080/api/v1/strategies/fe003d61-d044-42e1-8e89-d2785b690ea2/executions?sort=startedAt,desc'
@@ -179,7 +179,7 @@ curl -X GET 'localhost:8080/api/v1/strategies/fe003d61-d044-42e1-8e89-d2785b690e
 ```
 </details>
 
-Now we can add money to account and wait to the next execution.
+Now we can add money to account and wait for the next execution.
 
 <details>
 <summary>The log contains:</summary>
@@ -459,6 +459,7 @@ The REST API call:
 
 <details>
 <summary>curl -X POST 'localhost:8080/api/v1/strategies/fe003d61-d044-42e1-8e89-d2785b690ea2/archive'</summary>
+
 ```
 curl -X POST 'localhost:8080/api/v1/strategies/fe003d61-d044-42e1-8e89-d2785b690ea2/archive' \
 --data-raw ''
@@ -486,7 +487,7 @@ Now let's create the second strategy of `REBALANCE_EQUAL_WEIGHTED` type:
 <summary>curl --location --request POST 'localhost:8080/api/v1/strategies'</summary>
 
 ```
-curl --location --request POST 'localhost:8080/api/v1/strategies' \
+curl -X POST 'localhost:8080/api/v1/strategies' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "tinkoffAccountId": "2172037018",
@@ -789,11 +790,11 @@ curl -X GET 'localhost:8080/api/v1/strategies/f0a1e130-d7b6-4496-87b5-33dfe76c9b
 
 ### Class diagram
 
-[Class diagram](docs/class-diagram.png)
+![Class diagram](docs/class-diagram.png)
 
 ### Strategy execution sequence diagram
 
-[Sequence diagram](docs/strategy-execution-sequence-diagram.png)
+![Sequence diagram](docs/strategy-execution-sequence-diagram.png)
 
 ## Next steps
 
